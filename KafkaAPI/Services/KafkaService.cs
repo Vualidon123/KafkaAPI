@@ -1,12 +1,17 @@
 ﻿using Confluent.Kafka;
 using Confluent.Kafka.Admin;
+using KafkaAPI.Data;
+using KafkaAPI.Models;
+using MongoDB.Bson;
+using System.Runtime.InteropServices;
 
 public class KafkaService
 {
     private readonly AdminClientConfig _adminConfig;
-
-    public KafkaService(IConfiguration configuration)
+    private readonly MongoDbContext _context;
+    public KafkaService(IConfiguration configuration,MongoDbContext context)
     {
+        _context = context;
         _adminConfig = new AdminClientConfig
         {
             BootstrapServers = configuration["Kafka:BootstrapServers"]
@@ -22,6 +27,12 @@ public class KafkaService
             {
                 new TopicSpecification { Name = topicName, NumPartitions = numPartitions, ReplicationFactor = replicationFactor }
             });
+            var topic = new Topic
+            {
+                Id = ObjectId.GenerateNewId(),
+                Name = topicName,
+            };
+            _context.Topics.InsertOne(topic);
             return true;
         }
         catch (CreateTopicsException ex)

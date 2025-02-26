@@ -18,6 +18,6 @@ namespace KafkaAPI.Models
 
         [BsonElement("Description")]
         public string Description { get; set; }
-        public int TopicId{ get; set; }
+        public string TopicName{ get; set; }
     }
 }
