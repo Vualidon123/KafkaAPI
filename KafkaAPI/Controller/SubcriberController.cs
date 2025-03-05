@@ -7,29 +7,23 @@ using Microsoft.AspNetCore.Mvc;
 public class SubscriberController : ControllerBase
 {
     private readonly SubscriberService _subscriberService;
-    private readonly MongoDbContext _context;
-    public SubscriberController(SubscriberService subscriberService,MongoDbContext context)
+
+    public SubscriberController(SubscriberService subscriberService)
     {
         _subscriberService = subscriberService;
-        _context = context;
     }
 
     [HttpPost("register")]
-    public IActionResult RegisterSubscriber([FromBody] SubscribeRequest request)
+    public async Task<IActionResult> RegisterSubscriber([FromBody] SubscribeRequest request)
     {
-        _subscriberService.RegisterSubscriber(request.Topic, request.CallbackUrl);
-        var subcri = new Subscriber
-        {
-            TopicName = request.Topic,
-            CallbackUrl = request.CallbackUrl
-        };
-        _context.Subscribers.InsertOne(subcri);
+       await _subscriberService.RegisterSubscriberAsync(request.Topic, request.CallbackUrl);
         return Ok("Subscriber registered");
     }
+
     [HttpGet]
     public IActionResult GetSubcrisbers(string topic)
     {
-        var subcribers=_subscriberService.GetSubscribers(topic);
+        var subcribers = _subscriberService.GetSubscribers(topic);
         return Ok(subcribers);
     }
 }

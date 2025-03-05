@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace KafkaAPI.Models
 {
-    public class Topic
+    public class Event
     {
         [BsonId]
         public ObjectId Id { get; set; }
@@ -13,7 +13,7 @@ namespace KafkaAPI.Models
         public string Name { get; set; }
 
         public int TopicId { get; set; }
-        [BsonIgnore]
-        public List<Subscriber> Subscribers { get; set; } = new List<Subscriber>();
+        
+        public List<SubTopic> SubTopics { get; set; } = new List<SubTopic>();
     }
 }

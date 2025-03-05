@@ -5,19 +5,13 @@ using MongoDB.Bson;
 
 namespace KafkaAPI.Models
 {
-    public class Subscriber
+    public class SubTopic
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
-
-        public int SubCrisberId {get;set; }
-
+        
+        public ObjectId Id { get; set; }
         [BsonElement("CallbackUrl")]
         public string CallbackUrl { get; set; }
-
-        [BsonElement("Description")]
-        public string Description { get; set; }
         public string TopicName{ get; set; }
+        public string subTopic { get; set; }
     }
 }

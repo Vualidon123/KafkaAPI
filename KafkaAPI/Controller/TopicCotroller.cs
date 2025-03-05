@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using KafkaAPI.Data;
 using MongoDB.Driver;
+using KafkaAPI.Producer;
 
 namespace KafkaAPI.Controller
 {
@@ -15,11 +16,13 @@ namespace KafkaAPI.Controller
         private readonly string _kafkaServer;
         private readonly MongoDbContext _db;
         private readonly KafkaService _kafkaService;
-        public TopicCotroller(IConfiguration config, MongoDbContext db,KafkaService kafkaService)
+        private readonly KProducer _producer;
+        public TopicCotroller(IConfiguration config, MongoDbContext db,KafkaService kafkaService,KProducer producer)
         {
             _kafkaServer = config["Kafka:BootstrapServers"];
             _db = db;
             _kafkaService=kafkaService;
+            _producer = producer;
         }
         [HttpPost("create")]
         public async Task<IActionResult> CreateTopic([FromBody] CreateTopicRequest request)
@@ -33,6 +36,13 @@ namespace KafkaAPI.Controller
             var topics = await _kafkaService.ListTopicsAsync();
             return Ok(topics);
         }
+        [HttpPost]
+        public async Task<IActionResult> CreateMessage(string mes,string topic)
+        {
+           await _producer.ProduceAsync(topic,mes);
+            return Ok();
+        }
+       
     }
 
 }

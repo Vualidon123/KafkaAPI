@@ -2,14 +2,14 @@
 
 namespace KafkaAPI.Producer
 {
-    public class Producer
+    public class KProducer
     {
         private readonly IProducer<Null, string> _producer;
 
-        public Producer()
+        public KProducer()
         {
             
-            var config = new ProducerConfig { BootstrapServers = "localhost:29092" };
+            var config = new ProducerConfig { BootstrapServers = "localhost:9092" };
             _producer = new ProducerBuilder<Null, string>(config).Build();
         }
 

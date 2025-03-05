@@ -27,7 +27,7 @@ public class KafkaService
             {
                 new TopicSpecification { Name = topicName, NumPartitions = numPartitions, ReplicationFactor = replicationFactor }
             });
-            var topic = new Topic
+            var topic = new Event
             {
                 Id = ObjectId.GenerateNewId(),
                 Name = topicName,

@@ -13,8 +13,8 @@ namespace KafkaAPI.Data
             _database = client.GetDatabase(config["MongoDB:DatabaseName"]);
         }
 
-        public IMongoCollection<Topic> Topics => _database.GetCollection<Topic>("Topics");
-        public IMongoCollection<Subscriber> Subscribers => _database.GetCollection<Subscriber>("Subscribers");
+        public IMongoCollection<Event> Topics => _database.GetCollection<Event>("Event");
+        public IMongoCollection<SubTopic> Subscribers => _database.GetCollection<SubTopic>("SubTopic");
     }
 
 }
