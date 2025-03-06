@@ -1,4 +1,5 @@
 ﻿using Confluent.Kafka;
+using Confluent.Kafka.Admin;
 using KafkaAPI.Data;
 using KafkaAPI.Models;
 using MongoDB.Bson;
@@ -8,17 +9,20 @@ public class SubscriberService
 {
     private readonly MongoDbContext _context;
     private readonly AdminClientConfig _adminConfig;
+    private readonly KafkaService _kafkaService;    
 
-    public SubscriberService(IConfiguration configuration ,MongoDbContext context)
+    public SubscriberService(IConfiguration configuration ,MongoDbContext context,KafkaService kafkaService)
     {
         _context = context;
         _adminConfig = new AdminClientConfig
         {
             BootstrapServers = configuration["Kafka:BootstrapServers"]
         };
+        _kafkaService = kafkaService;
     }
     public async Task RegisterSubscriberAsync(string topicName, string callbackUrl)
     {
+        using var adminClient = new AdminClientBuilder(_adminConfig).Build();
         var topic = await _context.Topics.Find(sub => sub.Name == topicName).FirstOrDefaultAsync();//kiem tra topic co ton tai hay khong
         if (topic == null)
         {
@@ -40,9 +44,12 @@ public class SubscriberService
         // Correctly update the SubTopics list using $push
         var filter = Builders<Event>.Filter.Eq(t => t.Name, topic.Name);
         var update = Builders<Event>.Update.Push(t => t.SubTopics, subTopic);
-
+        await adminClient.CreateTopicsAsync(new[]
+            {
+                new TopicSpecification { Name = topicName, NumPartitions = 1, ReplicationFactor = 1 }
+            });
         await _context.Topics.UpdateOneAsync(filter, update);//cap nhap subtopic trong events
-
+        
         // Add subscriber to a separate collection
         await _context.Subscribers.InsertOneAsync(subTopic);
 

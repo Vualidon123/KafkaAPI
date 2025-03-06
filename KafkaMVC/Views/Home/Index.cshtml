@@ -1,0 +1,213 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    var firstTopic = Model.Count > 0 ? Model[0] : "";
+}
+
+<style>
+    .dashboard {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+    }
+    h1, h2 {
+        color: #333;
+    }
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    ul li {
+        margin: 5px 0;
+    }
+    ul li a {
+        text-decoration: none;
+        color: #007bff;
+    }
+    ul li a:hover {
+        text-decoration: underline;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    form {
+        margin-top: 20px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+    form div {
+        margin-bottom: 10px;
+    }
+    form label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    form input[type="text"],
+    form input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    form button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }   
+    form button:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+<div class="dashboard">
+    <h1 class="display-4">Dashboard</h1>
+
+    <h2>Topics</h2>
+    <ul>
+        @foreach (var topic in Model)
+        {
+            <li>
+                <a href="#" onclick="showSubscribers('@topic')">@topic</a>
+                <button onclick="registerSubscriber('@topic')" style="margin-left: 10px;">Register Subscriber</button>
+            </li>
+        }
+    </ul>
+
+    <h2>Subscribers for <span id="selected-topic">None</span></h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Callbackurl</th>
+               
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var subscriber in ViewBag.Subscribers)
+            {
+                <tr>
+                    <td>@subscriber.Id</td>
+                    <td>@subscriber.CallbackUrl</td>
+                   
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h2>Create Topic</h2>
+    <form asp-action="CreateTopic" method="post">
+        <div>
+            <label>Topic Name:</label>
+            <input type="text" name="topicName" required />
+        </div>
+        <div>
+            <label>Number of Partitions:</label>
+            <input type="number" name="numPartitions" required />
+        </div>
+        <div>
+            <label>Replication Factor:</label>
+            <input type="number" name="replicationFactor" required />
+        </div>
+        <button type="submit">Create Topic</button>
+    </form>
+
+    <h2>Create Message</h2>
+    <form asp-action="CreateMessage" method="post">
+        <div>
+            <label>Message:</label>
+            <input type="text" name="message" required />
+        </div>
+        <div>
+            <label>Topic:</label>
+            <input type="text" name="topic" required />
+        </div>
+        <button type="submit">Send Message</button>
+    </form>
+
+    <h2>Register Subscriber</h2>
+    <form asp-action="RegisterSubscriber" method="post" id="register-subscriber-form">
+        <div>
+            <label>Topic:</label>
+            <input type="text" name="topic" id="subscriber-topic" required readonly />
+        </div>
+        <div>
+            <label>Callback URL:</label>
+            <input type="text" name="callbackUrl" required />
+        </div>
+        <button type="submit">Register</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if ('@firstTopic' !== '') {
+            showSubscribers('@firstTopic');
+        }
+    });
+
+    function showSubscribers(topicName) {
+        document.getElementById('selected-topic').innerText = topicName;
+        fetch(`/Home/Index?topicName=${encodeURIComponent(topicName)}`)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newTable = doc.querySelector('table');
+                document.querySelector('table').innerHTML = newTable.innerHTML;
+            });
+    }
+
+    function registerSubscriber(topicName) {
+        // Prompt the user for the Callback URL
+        const callbackUrl = prompt(`Enter Callback URL for topic: ${topicName}`);
+        
+        if (callbackUrl) {
+            // Send a POST request to the RegisterSubscriber action
+            fetch('/Home/RegisterSubscriber', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    topic: topicName,
+                    callbackUrl: callbackUrl
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    throw new Error('Failed to register subscriber.');
+                }
+            })
+            .then(message => {
+                alert(message); // Show success message
+            })
+            .catch(error => {
+                alert(error.message); // Show error message
+            });
+        } else {
+            alert('Callback URL is required.'); // Handle case where user cancels or leaves input empty
+        }
+    }
+</script>

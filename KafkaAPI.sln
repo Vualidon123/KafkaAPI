@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178 d17.12
+VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaAPI", "KafkaAPI\KafkaAPI.csproj", "{AB7FFAEE-6083-453E-952D-2E25B0B36AC5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaMVC", "KafkaMVC\KafkaMVC.csproj", "{1C227D24-0939-4C09-88A6-20D7C813B63E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{AB7FFAEE-6083-453E-952D-2E25B0B36AC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB7FFAEE-6083-453E-952D-2E25B0B36AC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB7FFAEE-6083-453E-952D-2E25B0B36AC5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C227D24-0939-4C09-88A6-20D7C813B63E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C227D24-0939-4C09-88A6-20D7C813B63E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C227D24-0939-4C09-88A6-20D7C813B63E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C227D24-0939-4C09-88A6-20D7C813B63E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -42,7 +42,13 @@ namespace KafkaAPI.Controller
            await _producer.ProduceAsync(topic,mes);
             return Ok();
         }
-       
+        [HttpGet("remain")]
+        public async Task<IActionResult> GetRemainMessage(string topic)
+        {
+         var remain=  await  _kafkaService.GetRemainingMessages(topic);
+            return Ok(remain);
+        }
+        
     }
 
 }

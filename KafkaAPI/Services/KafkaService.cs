@@ -3,14 +3,25 @@ using Confluent.Kafka.Admin;
 using KafkaAPI.Data;
 using KafkaAPI.Models;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using System.Runtime.InteropServices;
+using static Confluent.Kafka.ConfigPropertyNames;
 
 public class KafkaService
 {
     private readonly AdminClientConfig _adminConfig;
     private readonly MongoDbContext _context;
+    private readonly IConsumer<Null, string> _consumer;
     public KafkaService(IConfiguration configuration,MongoDbContext context)
     {
+        
+        var config = new ConsumerConfig
+        {
+            BootstrapServers = "localhost:9092",
+            GroupId = "consumer-group",
+            AutoOffsetReset = AutoOffsetReset.Earliest
+        };
+        _consumer = new ConsumerBuilder<Null, string>(config).Build();
         _context = context;
         _adminConfig = new AdminClientConfig
         {
@@ -44,8 +55,14 @@ public class KafkaService
 
     public async Task<List<string>> ListTopicsAsync()
     {
-        using var adminClient = new AdminClientBuilder(_adminConfig).Build();
-        var metadata = adminClient.GetMetadata(TimeSpan.FromSeconds(5));
-        return metadata.Topics.Select(t => t.Topic).ToList();
+        var topics = await _context.Topics.Find(_ => true).ToListAsync();
+        return topics.Select(t => t.Name).ToList();
+    }
+    public  async Task<long> GetRemainingMessages(string topic)
+    {
+        var partition = new TopicPartition(topic, new Partition(0));
+        var watermarkOffsets = _consumer.QueryWatermarkOffsets(partition, TimeSpan.FromSeconds(1));
+        var currentOffset = _consumer.Position(partition);
+        return watermarkOffsets.High.Value - currentOffset.Value;
     }
 }
